@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ブロック長用 営業日報 | 日本通信機器株式会社</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+  :root {
+    --navy: #0a1628; --gold: #c9a84c; --gold-light: #e8c96a; --gold-dark: #9a7a2e;
+    --white: #ffffff; --off-white: #f8f6f0; --light-gray: #f0ede6; --mid-gray: #d4cfc4;
+    --text-dark: #1a1a2e; --text-mid: #4a4a5a; --border: #d4cfc4;
+    --green: #2e7d32; --green-bg: #e8f5e9; --orange: #e65100; --orange-bg: #fff3e0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--off-white); color: var(--text-dark); font-size: 14px; padding-bottom: 80px; }
+
+  /* ── HEADER ── */
+  .header { background: var(--navy); padding: 12px 14px 10px; }
+  .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .logo-circle { width: 36px; height: 36px; border: 2px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; color: var(--gold); flex-shrink: 0; }
+  .header-title h1 { font-size: 10px; color: var(--mid-gray); letter-spacing: 0.08em; }
+  .header-title h2 { font-size: 16px; font-weight: 900; color: var(--white); }
+  .header-title h2 span { color: var(--gold); }
+  .header-motto { font-size: 9px; color: var(--gold-light); letter-spacing: 0.06em; margin-top: 2px; }
+  .header-fields { display: grid; gap: 6px; }
+  .date-row { display: grid; grid-template-columns: 2fr 1.2fr 1.2fr auto; gap: 4px; align-items: center; }
+  .header-field { background: rgba(255,255,255,0.07); border: 1px solid rgba(201,168,76,0.35); border-radius: 6px; padding: 4px 8px; }
+  .header-field label { font-size: 9px; color: var(--gold-light); letter-spacing: 0.08em; display: block; margin-bottom: 2px; }
+  .header-field select, .header-field input { width: 100%; background: transparent; border: none; outline: none; color: var(--white); font-size: 12px; font-family: inherit; font-weight: 500; -webkit-appearance: none; appearance: none; cursor: pointer; }
+  .header-field select option { background: var(--navy); color: var(--white); }
+  .header-field input::placeholder { color: rgba(255,255,255,0.25); }
+  .weekday-badge { background: rgba(201,168,76,0.18); border: 1px solid rgba(201,168,76,0.5); border-radius: 6px; padding: 6px 8px; text-align: center; min-width: 42px; }
+  .weekday-badge span { font-size: 13px; font-weight: 900; color: var(--gold-light); }
+
+  /* GAS URL 設定バー */
+  .gas-bar { background: #1a2a42; padding: 7px 14px; border-bottom: 1px solid rgba(201,168,76,0.25); display: flex; align-items: center; gap: 8px; }
+  .gas-bar label { font-size: 9px; color: var(--gold-light); white-space: nowrap; flex-shrink: 0; }
+  .gas-bar input { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(201,168,76,0.3); border-radius: 5px; padding: 5px 8px; color: var(--white); font-size: 10px; font-family: inherit; outline: none; }
+  .gas-bar input::placeholder { color: rgba(255,255,255,0.3); font-size: 9px; }
+  .gas-save-btn { background: var(--gold-dark); border: none; border-radius: 5px; color: var(--white); font-size: 10px; font-weight: 700; padding: 5px 10px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+
+  /* PROGRESS */
+  .progress-bar-container { background: var(--navy); padding: 5px 14px 9px; border-bottom: 1px solid rgba(201,168,76,0.2); }
+  .progress-label { display: flex; justify-content: space-between; font-size: 9px; color: var(--gold-light); margin-bottom: 3px; }
+  .progress-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+
+  /* TABS */
+  .tabs-wrapper { background: var(--navy); padding: 0 12px 8px; overflow-x: auto; scrollbar-width: none; }
+  .tabs-wrapper::-webkit-scrollbar { display: none; }
+  .tabs { display: flex; gap: 6px; min-width: max-content; }
+  .tab-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(201,168,76,0.25); border-radius: 20px; color: rgba(255,255,255,0.55); font-family: inherit; font-size: 10px; padding: 5px 12px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .tab-btn.active { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 700; }
+  .nav-arrows { display: flex; gap: 8px; padding: 6px 12px 10px; background: var(--navy); }
+  .nav-btn { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(201,168,76,0.25); border-radius: 8px; color: var(--gold-light); font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px; cursor: pointer; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  /* 固定ヘッダーラッパー */
+  .sticky-wrapper { position: sticky; top: 0; z-index: 100; box-shadow: 0 3px 16px rgba(0,0,0,0.45); }
+
+  /* MAIN */
+  .main { padding: 12px; }
+  .section { display: none; animation: fadeUp 0.25s ease forwards; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* CARD */
+  .card { background: var(--white); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .card-header { background: var(--navy); padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+  .card-num { width: 22px; height: 22px; background: var(--gold); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: var(--navy); flex-shrink: 0; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--white); }
+  .card-icon { margin-left: auto; font-size: 16px; opacity: 0.7; }
+  .card-body { padding: 14px; }
+
+  /* FORM */
+  .field-label { font-size: 10px; color: var(--gold-dark); font-weight: 700; letter-spacing: 0.06em; margin-bottom: 5px; margin-top: 12px; }
+  .field-label:first-child { margin-top: 0; }
+  textarea, input[type="text"], input[type="number"] { width: 100%; background: var(--off-white); border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 11px; font-family: inherit; font-size: 13px; color: var(--text-dark); outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
+  textarea:focus, input[type="text"]:focus, input[type="number"]:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
+  textarea { resize: vertical; min-height: 68px; }
+
+  .bullet-item { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .bullet-dot { width: 7px; height: 7px; min-width: 7px; background: var(--gold); border-radius: 50%; }
+  .num-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+  .num-badge { width: 22px; height: 22px; min-width: 22px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--navy); margin-top: 7px; }
+
+  /* KPI */
+  .kpi-row { background: var(--off-white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+  .kpi-row-title { font-size: 11px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .kpi-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+  .kpi-input-group label { font-size: 9px; color: var(--text-mid); margin-bottom: 3px; display: block; }
+  .kpi-input-group input { padding: 7px 9px; font-size: 12px; }
+  .kpi-status { display: flex; gap: 8px; }
+  .kpi-badge { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; background: var(--light-gray); border: 1.5px solid var(--border); border-radius: 6px; padding: 7px; cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text-mid); transition: all 0.15s; }
+  .kpi-badge input[type="radio"] { display: none; }
+  .kpi-badge.reached { background: var(--green-bg); border-color: #4caf50; color: var(--green); }
+  .kpi-badge.not-reached { background: var(--orange-bg); border-color: #ff9800; color: var(--orange); }
+  .kpi-rate-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+  .kpi-rate-label { font-size: 10px; color: var(--text-mid); }
+  .kpi-rate-value { font-size: 18px; font-weight: 900; color: var(--mid-gray); }
+  .kpi-rate-value.over { color: var(--green); }
+  .kpi-rate-value.under { color: var(--orange); }
+  .kpi-rate-bar-track { height: 6px; background: var(--light-gray); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+  .kpi-rate-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; width: 0%; background: var(--mid-gray); }
+  .kpi-rate-bar-fill.over { background: #4caf50; }
+  .kpi-rate-bar-fill.under { background: #ff9800; }
+  .kpi-auto-badge { display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 700; border: 2px solid var(--border); background: var(--light-gray); color: var(--text-mid); transition: all 0.3s; }
+  .kpi-auto-badge.reached { background: var(--green-bg); border-color: #4caf50; color: var(--green); }
+  .kpi-auto-badge.not-reached { background: var(--orange-bg); border-color: #ff9800; color: var(--orange); }
+
+  /* MEMBER */
+  .member-card { background: var(--off-white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+  .member-card-name { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .member-icon { width: 28px; height: 28px; min-width: 28px; background: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--gold); }
+  .member-card-name input { font-size: 13px; font-weight: 600; }
+  .member-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .member-field label { font-size: 9px; color: var(--gold-dark); font-weight: 700; letter-spacing: 0.05em; display: block; margin-bottom: 3px; }
+  .member-field textarea { font-size: 12px; min-height: 56px; padding: 7px 9px; overflow: hidden; resize: none; }
+
+  /* TRAINING */
+  .training-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .training-item { background: var(--off-white); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+  .training-item label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--navy); cursor: pointer; margin-bottom: 5px; }
+  .training-item label input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--gold); }
+  .training-item input[type="text"] { padding: 5px 7px; font-size: 11px; }
+
+  /* CHECKBOX */
+  .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .check-item { display: flex; align-items: center; gap: 7px; background: var(--off-white); border: 1.5px solid var(--border); border-radius: 7px; padding: 8px 10px; cursor: pointer; font-size: 11px; color: var(--text-mid); transition: all 0.15s; }
+  .check-item input { display: none; }
+  .check-box { width: 16px; height: 16px; min-width: 16px; border: 1.5px solid var(--border); border-radius: 4px; background: var(--white); display: flex; align-items: center; justify-content: center; font-size: 10px; color: transparent; transition: all 0.15s; }
+  .check-item.checked { background: #fff9ec; border-color: var(--gold); color: var(--navy); }
+  .check-item.checked .check-box { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+
+  /* ISSUES */
+  .issue-card { background: var(--off-white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+  .issue-header { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .issue-num { font-size: 11px; font-weight: 700; color: var(--gold-dark); }
+  .sev-btns { display: flex; gap: 5px; margin-left: auto; }
+  .sev-btn { padding: 3px 9px; border-radius: 10px; border: none; font-size: 10px; font-weight: 700; cursor: pointer; background: var(--light-gray); color: var(--text-mid); font-family: inherit; }
+  .sev-btn.active-high { background: #fdecea; color: #c62828; }
+  .sev-btn.active-mid  { background: var(--orange-bg); color: var(--orange); }
+  .sev-btn.active-low  { background: var(--green-bg); color: var(--green); }
+  .sub-label { font-size: 10px; font-weight: 700; color: var(--gold-dark); margin-bottom: 5px; margin-top: 7px; }
+
+  /* DECISION */
+  .decision-card { background: var(--off-white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+  .decision-label { font-size: 10px; font-weight: 700; color: var(--gold-dark); margin-bottom: 5px; }
+
+  /* SUBMIT BUTTONS */
+  .btn-row { display: flex; gap: 10px; margin-top: 6px; }
+  .btn-submit {
+    flex: 1; padding: 14px; border: none; border-radius: 10px;
+    font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all 0.2s;
+  }
+  .btn-save-local { background: var(--light-gray); color: var(--text-dark); border: 1.5px solid var(--border); }
+  .btn-send { background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: var(--navy); box-shadow: 0 4px 14px rgba(201,168,76,0.4); }
+  .btn-send:active { transform: scale(0.97); }
+  .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* STATUS MODAL */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .overlay.show { display: flex; }
+  .modal { background: var(--white); border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+  .modal-icon { font-size: 48px; margin-bottom: 12px; }
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .modal-msg { font-size: 13px; color: var(--text-mid); line-height: 1.6; margin-bottom: 20px; }
+  .modal-close { background: var(--navy); color: var(--white); border: none; border-radius: 8px; padding: 10px 28px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+  /* SENDING SPINNER */
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(10,22,40,0.2); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer-stamp { text-align: center; padding: 10px; font-size: 9px; color: var(--mid-gray); letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+
+<div class="sticky-wrapper">
+<!-- ══ HEADER ══ -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo-circle">NJ</div>
+    <div class="header-title">
+      <h1>日本通信機器株式会社</h1>
+      <h2>ブロック長用 <span>営業日報</span></h2>
+      <div class="header-motto">挑む。戦略で動かし、組織で勝つ。</div>
+    </div>
+  </div>
+  <div class="header-fields">
+    <div class="date-row">
+      <div class="header-field"><label>年</label><select id="year"></select></div>
+      <div class="header-field"><label>月</label><select id="month"></select></div>
+      <div class="header-field"><label>日</label><select id="day"></select></div>
+      <div class="weekday-badge"><span id="weekday">―</span>曜</div>
+    </div>
+    <div class="header-field">
+      <label>ブロック長名</label>
+      <select id="manager">
+        <option value="">― 選択してください ―</option>
+        <option>小竹山政隆</option><option>濱道昌孝</option><option>宮崎智士</option>
+        <option>和田哲郎</option><option>川口文敬</option><option>木村航</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- GAS URL 設定 -->
+<div class="gas-bar">
+  <label>📡 GAS URL</label>
+  <input type="text" id="gas-url" placeholder="Google Apps Script の URL を貼り付けてください">
+  <button class="gas-save-btn" onclick="saveGasUrl()">保存</button>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-bar-container">
+  <div class="progress-label"><span>入力進捗</span><span id="progress-pct">0%</span></div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrapper">
+  <div class="tabs">
+    <button class="tab-btn active" data-section="s1">①テーマ</button>
+    <button class="tab-btn" data-section="s2">②KPI</button>
+    <button class="tab-btn" data-section="s3">③組織</button>
+    <button class="tab-btn" data-section="s4">④意思決定・課題相談</button>
+    <button class="tab-btn" data-section="s5">⑤総括</button>
+  </div>
+</div>
+<div class="nav-arrows">
+  <button class="nav-btn" id="prev-btn" disabled>← 前へ</button>
+  <button class="nav-btn" id="next-btn">次へ →</button>
+</div>
+</div><!-- /sticky-wrapper -->
+
+<div class="main">
+
+  <!-- ①テーマ -->
+  <div class="section active" id="s1">
+    <div class="card">
+      <div class="card-header"><div class="card-num">1</div><div class="card-title">本日の最重要テーマ・成果</div><div class="card-icon">🎯</div></div>
+      <div class="card-body">
+        <div class="field-label">最重要テーマ（ブロックとして達成すべきこと）</div>
+        <div class="bullet-item"><div class="bullet-dot"></div><input type="text" id="theme1" placeholder="テーマ①を入力"></div>
+        <div class="bullet-item"><div class="bullet-dot"></div><input type="text" id="theme2" placeholder="テーマ②を入力"></div>
+        <div class="field-label" style="margin-top:16px;">本日の主な成果（TOP3）</div>
+        <div class="num-item"><div class="num-badge">1</div><input type="text" id="result1" placeholder="成果①"></div>
+        <div class="num-item"><div class="num-badge">2</div><input type="text" id="result2" placeholder="成果②"></div>
+        <div class="num-item"><div class="num-badge">3</div><input type="text" id="result3" placeholder="成果③"></div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- ②KPI 自動計算版 -->
+  <div class="section" id="s2">
+    <div class="card">
+      <div class="card-header"><div class="card-num">2</div><div class="card-title">部門・組織のKPI進捗</div><div class="card-icon">📊</div></div>
+      <div class="card-body">
+
+        <div class="kpi-row">
+          <div class="kpi-row-title">売上（万円）</div>
+          <div class="kpi-inputs">
+            <div class="kpi-input-group"><label>目標</label><input type="number" id="kpi_sales_target" placeholder="万円" oninput="calcKpi('sales')"></div>
+            <div class="kpi-input-group"><label>本日実績</label><input type="number" id="kpi_sales_actual" placeholder="万円" oninput="calcKpi('sales')"></div>
+          </div>
+          <div class="kpi-rate-row"><span class="kpi-rate-label">達成率</span><span class="kpi-rate-value" id="kpi_sales_rate">―</span></div>
+          <div class="kpi-rate-bar-track"><div class="kpi-rate-bar-fill" id="kpi_sales_bar"></div></div>
+          <div class="kpi-auto-badge" id="kpi_sales_badge">目標と実績を入力すると自動判定</div>
+          <input type="hidden" id="kpi_sales_status" value="">
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-row-title">Point（P）</div>
+          <div class="kpi-inputs">
+            <div class="kpi-input-group"><label>目標</label><input type="number" id="kpi_point_target" placeholder="P" oninput="calcKpi('point')"></div>
+            <div class="kpi-input-group"><label>本日実績</label><input type="number" id="kpi_point_actual" placeholder="P" oninput="calcKpi('point')"></div>
+          </div>
+          <div class="kpi-rate-row"><span class="kpi-rate-label">達成率</span><span class="kpi-rate-value" id="kpi_point_rate">―</span></div>
+          <div class="kpi-rate-bar-track"><div class="kpi-rate-bar-fill" id="kpi_point_bar"></div></div>
+          <div class="kpi-auto-badge" id="kpi_point_badge">目標と実績を入力すると自動判定</div>
+          <input type="hidden" id="kpi_point_status" value="">
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-row-title">光JAPAN</div>
+          <div class="kpi-inputs">
+            <div class="kpi-input-group"><label>目標</label><input type="number" id="kpi_hikari_target" placeholder="件" oninput="calcKpi('hikari')"></div>
+            <div class="kpi-input-group"><label>本日実績</label><input type="number" id="kpi_hikari_actual" placeholder="件" oninput="calcKpi('hikari')"></div>
+          </div>
+          <div class="kpi-rate-row"><span class="kpi-rate-label">達成率</span><span class="kpi-rate-value" id="kpi_hikari_rate">―</span></div>
+          <div class="kpi-rate-bar-track"><div class="kpi-rate-bar-fill" id="kpi_hikari_bar"></div></div>
+          <div class="kpi-auto-badge" id="kpi_hikari_badge">目標と実績を入力すると自動判定</div>
+          <input type="hidden" id="kpi_hikari_status" value="">
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-row-title">エコJAPAN</div>
+          <div class="kpi-inputs">
+            <div class="kpi-input-group"><label>目標</label><input type="number" id="kpi_eco_target" placeholder="件" oninput="calcKpi('eco')"></div>
+            <div class="kpi-input-group"><label>本日実績</label><input type="number" id="kpi_eco_actual" placeholder="件" oninput="calcKpi('eco')"></div>
+          </div>
+          <div class="kpi-rate-row"><span class="kpi-rate-label">達成率</span><span class="kpi-rate-value" id="kpi_eco_rate">―</span></div>
+          <div class="kpi-rate-bar-track"><div class="kpi-rate-bar-fill" id="kpi_eco_bar"></div></div>
+          <div class="kpi-auto-badge" id="kpi_eco_badge">目標と実績を入力すると自動判定</div>
+          <input type="hidden" id="kpi_eco_status" value="">
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-row-title">新規開拓件数</div>
+          <div class="kpi-inputs">
+            <div class="kpi-input-group"><label>目標</label><input type="number" id="kpi_new_target" placeholder="件" oninput="calcKpi('new')"></div>
+            <div class="kpi-input-group"><label>本日実績</label><input type="number" id="kpi_new_actual" placeholder="件" oninput="calcKpi('new')"></div>
+          </div>
+          <div class="kpi-rate-row"><span class="kpi-rate-label">達成率</span><span class="kpi-rate-value" id="kpi_new_rate">―</span></div>
+          <div class="kpi-rate-bar-track"><div class="kpi-rate-bar-fill" id="kpi_new_bar"></div></div>
+          <div class="kpi-auto-badge" id="kpi_new_badge">目標と実績を入力すると自動判定</div>
+          <input type="hidden" id="kpi_new_status" value="">
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-row-title">受注件数</div>
+          <div class="kpi-inputs">
+            <div class="kpi-input-group"><label>目標</label><input type="number" id="kpi_order_target" placeholder="件" oninput="calcKpi('order')"></div>
+            <div class="kpi-input-group"><label>本日実績</label><input type="number" id="kpi_order_actual" placeholder="件" oninput="calcKpi('order')"></div>
+          </div>
+          <div class="kpi-rate-row"><span class="kpi-rate-label">達成率</span><span class="kpi-rate-value" id="kpi_order_rate">―</span></div>
+          <div class="kpi-rate-bar-track"><div class="kpi-rate-bar-fill" id="kpi_order_bar"></div></div>
+          <div class="kpi-auto-badge" id="kpi_order_badge">目標と実績を入力すると自動判定</div>
+          <input type="hidden" id="kpi_order_status" value="">
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-row-title">見積提出件数</div>
+          <div class="kpi-inputs">
+            <div class="kpi-input-group"><label>目標</label><input type="number" id="kpi_quote_target" placeholder="件" oninput="calcKpi('quote')"></div>
+            <div class="kpi-input-group"><label>本日実績</label><input type="number" id="kpi_quote_actual" placeholder="件" oninput="calcKpi('quote')"></div>
+          </div>
+          <div class="kpi-rate-row"><span class="kpi-rate-label">達成率</span><span class="kpi-rate-value" id="kpi_quote_rate">―</span></div>
+          <div class="kpi-rate-bar-track"><div class="kpi-rate-bar-fill" id="kpi_quote_bar"></div></div>
+          <div class="kpi-auto-badge" id="kpi_quote_badge">目標と実績を入力すると自動判定</div>
+          <input type="hidden" id="kpi_quote_status" value="">
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-row-title">次回アポ件数</div>
+          <div class="kpi-inputs">
+            <div class="kpi-input-group"><label>目標</label><input type="number" id="kpi_apo_target" placeholder="件" oninput="calcKpi('apo')"></div>
+            <div class="kpi-input-group"><label>本日実績</label><input type="number" id="kpi_apo_actual" placeholder="件" oninput="calcKpi('apo')"></div>
+          </div>
+          <div class="kpi-rate-row"><span class="kpi-rate-label">達成率</span><span class="kpi-rate-value" id="kpi_apo_rate">―</span></div>
+          <div class="kpi-rate-bar-track"><div class="kpi-rate-bar-fill" id="kpi_apo_bar"></div></div>
+          <div class="kpi-auto-badge" id="kpi_apo_badge">目標と実績を入力すると自動判定</div>
+          <input type="hidden" id="kpi_apo_status" value="">
+        </div>
+
+        <div class="field-label">進捗に対する所感・課題</div>
+        <textarea id="kpi_comment" placeholder="KPI進捗に関する所感や課題を入力..." rows="3"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③組織 -->
+  <div class="section" id="s3">
+    <div class="card">
+      <div class="card-header"><div class="card-num">3</div><div class="card-title">組織・メンバーの状況</div><div class="card-icon">👥</div></div>
+      <div class="card-body">
+        <div class="field-label">メンバー別ハイライト（良かった点・気になる点・課題）</div>
+
+        <div class="member-card">
+          <div class="member-card-name"><div class="member-icon">1</div><input type="text" id="m1_name" placeholder="メンバー名を入力"></div>
+          <div class="member-fields">
+            <div class="member-field"><label>✅ 良かった点</label><textarea id="m1_good" placeholder="成果・行動など..."></textarea></div>
+            <div class="member-field"><label>⚠️ 気になる点</label><textarea id="m1_concern" placeholder="課題・懸念など..."></textarea></div>
+          </div>
+        </div>
+
+        <div class="member-card">
+          <div class="member-card-name"><div class="member-icon">2</div><input type="text" id="m2_name" placeholder="メンバー名を入力"></div>
+          <div class="member-fields">
+            <div class="member-field"><label>✅ 良かった点</label><textarea id="m2_good" placeholder="成果・行動など..."></textarea></div>
+            <div class="member-field"><label>⚠️ 気になる点</label><textarea id="m2_concern" placeholder="課題・懸念など..."></textarea></div>
+          </div>
+        </div>
+
+        <div class="member-card">
+          <div class="member-card-name"><div class="member-icon">3</div><input type="text" id="m3_name" placeholder="メンバー名を入力"></div>
+          <div class="member-fields">
+            <div class="member-field"><label>✅ 良かった点</label><textarea id="m3_good" placeholder="成果・行動など..."></textarea></div>
+            <div class="member-field"><label>⚠️ 気になる点</label><textarea id="m3_concern" placeholder="課題・懸念など..."></textarea></div>
+          </div>
+        </div>
+
+        <div class="member-card">
+          <div class="member-card-name"><div class="member-icon">4</div><input type="text" id="m4_name" placeholder="メンバー名を入力"></div>
+          <div class="member-fields">
+            <div class="member-field"><label>✅ 良かった点</label><textarea id="m4_good" placeholder="成果・行動など..."></textarea></div>
+            <div class="member-field"><label>⚠️ 気になる点</label><textarea id="m4_concern" placeholder="課題・懸念など..."></textarea></div>
+          </div>
+        </div>
+        <div class="field-label" style="margin-top:16px;">育成・支援の実施状況</div>
+        <div class="training-grid">
+          <div class="training-item"><label><input type="checkbox" id="tr_1on1"> 1on1 実施</label><input type="text" id="tr_1on1_name" placeholder="対象者名"></div>
+          <div class="training-item"><label><input type="checkbox" id="tr_accompany"> 同行・同席</label><input type="text" id="tr_accompany_name" placeholder="対象者名"></div>
+          <div class="training-item"><label><input type="checkbox" id="tr_role"> ロールプレイ</label><input type="text" id="tr_role_name" placeholder="対象者名"></div>
+          <div class="training-item"><label><input type="checkbox" id="tr_feedback"> フィードバック</label><input type="text" id="tr_feedback_name" placeholder="対象者名"></div>
+        </div>
+        <div class="field-label">その他（具体的に）</div>
+        <input type="text" id="tr_other" placeholder="その他の育成・支援内容">
+      </div>
+    </div>
+  </div>
+
+  <!-- ④意思決定・課題（統合） -->
+  <div class="section" id="s4">
+    <div class="card">
+      <div class="card-header"><div class="card-num">4</div><div class="card-title">意思決定・判断</div><div class="card-icon">⚖️</div></div>
+      <div class="card-body">
+        <div class="decision-card">
+          <div class="decision-label">① 件名</div><input type="text" id="dec1_title" placeholder="件名" style="margin-bottom:7px;">
+          <div class="decision-label">決定内容・判断理由</div><textarea id="dec1_reason" placeholder="内容と理由..." rows="2"></textarea>
+        </div>
+        <div class="decision-card">
+          <div class="decision-label">② 件名</div><input type="text" id="dec2_title" placeholder="件名" style="margin-bottom:7px;">
+          <div class="decision-label">決定内容・判断理由</div><textarea id="dec2_reason" placeholder="内容と理由..." rows="2"></textarea>
+        </div>
+        <div class="decision-card">
+          <div class="decision-label">③ 件名</div><input type="text" id="dec3_title" placeholder="件名" style="margin-bottom:7px;">
+          <div class="decision-label">決定内容・判断理由</div><textarea id="dec3_reason" placeholder="内容と理由..." rows="2"></textarea>
+        </div>
+        <div class="field-label" style="margin-top:14px;">判断の背景（選択可・複数可）</div>
+        <div class="checkbox-grid">
+          <label class="check-item"><input type="checkbox" id="bg_sales"><div class="check-box">✓</div>売上・利益への影響</label>
+          <label class="check-item"><input type="checkbox" id="bg_market"><div class="check-box">✓</div>市場・競合動向</label>
+          <label class="check-item"><input type="checkbox" id="bg_customer"><div class="check-box">✓</div>顧客満足・信頼構築</label>
+          <label class="check-item"><input type="checkbox" id="bg_strategy"><div class="check-box">✓</div>長期戦略との整合性</label>
+          <label class="check-item"><input type="checkbox" id="bg_risk"><div class="check-box">✓</div>リスク・コンプライアンス</label>
+          <label class="check-item"><input type="checkbox" id="bg_efficiency"><div class="check-box">✓</div>効率・生産性</label>
+          <label class="check-item"><input type="checkbox" id="bg_hr"><div class="check-box">✓</div>人材育成・組織力強化</label>
+          <label class="check-item"><input type="checkbox" id="bg_other"><div class="check-box">✓</div>その他</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-num">5</div><div class="card-title">課題相談事項</div><div class="card-icon">💬</div></div>
+      <div class="card-body">
+        <div class="issue-card">
+          <div class="issue-header"><span class="issue-num">① 課題・リスク</span><div class="sev-btns"><button class="sev-btn" onclick="setSev(this,'high')">高</button><button class="sev-btn" onclick="setSev(this,'mid')">中</button><button class="sev-btn" onclick="setSev(this,'low')">低</button></div></div>
+          <input type="hidden" id="issue1_sev" value=""><input type="text" id="issue1_title" placeholder="課題・リスクを入力" style="margin-bottom:6px;">
+          <div class="sub-label">対策・アクション</div><textarea id="issue1_action" placeholder="対策・アクション..." rows="2"></textarea>
+        </div>
+        <div class="issue-card">
+          <div class="issue-header"><span class="issue-num">② 課題・リスク</span><div class="sev-btns"><button class="sev-btn" onclick="setSev(this,'high')">高</button><button class="sev-btn" onclick="setSev(this,'mid')">中</button><button class="sev-btn" onclick="setSev(this,'low')">低</button></div></div>
+          <input type="hidden" id="issue2_sev" value=""><input type="text" id="issue2_title" placeholder="課題・リスクを入力" style="margin-bottom:6px;">
+          <div class="sub-label">対策・アクション</div><textarea id="issue2_action" placeholder="対策・アクション..." rows="2"></textarea>
+        </div>
+        <div class="issue-card">
+          <div class="issue-header"><span class="issue-num">③ 課題・リスク</span><div class="sev-btns"><button class="sev-btn" onclick="setSev(this,'high')">高</button><button class="sev-btn" onclick="setSev(this,'mid')">中</button><button class="sev-btn" onclick="setSev(this,'low')">低</button></div></div>
+          <input type="hidden" id="issue3_sev" value=""><input type="text" id="issue3_title" placeholder="課題・リスクを入力" style="margin-bottom:6px;">
+          <div class="sub-label">対策・アクション</div><textarea id="issue3_action" placeholder="対策・アクション..." rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤総括 -->
+  <div class="section" id="s5">
+
+    <div class="card">
+      <div class="card-header"><div class="card-num">5</div><div class="card-title">明日の重点事項・アクション</div><div class="card-icon">🏃</div></div>
+      <div class="card-body">
+        <div class="field-label">重点テーマ</div>
+        <textarea id="tomorrow_theme" placeholder="明日の重点テーマを入力..." rows="3"></textarea>
+        <div class="field-label" style="margin-top:14px;">重点アクション（具体的に）</div>
+        <div class="num-item"><div class="num-badge">1</div><input type="text" id="action1" placeholder="重点アクション①"></div>
+        <div class="num-item"><div class="num-badge">2</div><input type="text" id="action2" placeholder="重点アクション②"></div>
+        <div class="num-item"><div class="num-badge">3</div><input type="text" id="action3" placeholder="重点アクション③"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-num">6</div><div class="card-title">ブロック長コメント欄</div><div class="card-icon">✏️</div></div>
+      <div class="card-body">
+        <div class="field-label">今日の総括（学び・気づき・良かったこと）</div>
+        <textarea id="summary" placeholder="今日の振り返りを入力..." rows="3"></textarea>
+        <div class="field-label">改善すべき点 / 反省点</div>
+        <textarea id="improvement" placeholder="改善・反省点を入力..." rows="3"></textarea>
+        <div class="field-label">ブロック内に向けたメッセージ</div>
+        <textarea id="message" placeholder="メンバーへのメッセージを入力..." rows="3"></textarea>
+        <div class="field-label">本日の決裁・承認事項（あれば記載）</div>
+        <textarea id="approval" placeholder="決裁・承認事項を入力..." rows="2"></textarea>
+        <div class="field-label">上長コメント欄</div>
+        <textarea id="boss_comment" placeholder="上長のコメント..." rows="3"></textarea>
+        <div class="field-label">署名 / 記入日</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="text" id="signature" placeholder="署名">
+          <input type="text" id="entry_date" placeholder="年 / 月 / 日">
+        </div>
+      </div>
+    </div>
+
+    <!-- 送信ボタン -->
+    <div class="btn-row">
+      <button class="btn-submit btn-save-local" onclick="saveLocal()">💾 一時保存</button>
+      <button class="btn-submit btn-send" id="send-btn" onclick="submitToSheets()">📤 スプレッドシートへ送信</button>
+    </div>
+
+    <div class="footer-stamp">挑み続ける姿が、組織を強くする。　— 日本通信機器株式会社</div>
+  </div>
+
+</div>
+
+<!-- モーダル -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-icon" id="modal-icon"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-msg" id="modal-msg"></div>
+    <button class="modal-close" onclick="closeModal()">閉じる</button>
+  </div>
+</div>
+
+<script>
+  /* ── タブ ── */
+  const sectionIds = ['s1','s2','s3','s4','s5'];
+  const tabs = document.querySelectorAll('.tab-btn');
+  let currentIdx = 0;
+
+  function showSection(idx) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tabs.forEach(t => t.classList.remove('active'));
+    document.getElementById(sectionIds[idx]).classList.add('active');
+    tabs[idx].classList.add('active');
+    tabs[idx].scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+    currentIdx = idx;
+    document.getElementById('prev-btn').disabled = idx === 0;
+    document.getElementById('next-btn').disabled = idx === sectionIds.length - 1;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateProgress();
+  }
+  tabs.forEach((btn, i) => btn.addEventListener('click', () => showSection(i)));
+  document.getElementById('prev-btn').addEventListener('click', () => { if (currentIdx > 0) showSection(currentIdx - 1); });
+  document.getElementById('next-btn').addEventListener('click', () => { if (currentIdx < sectionIds.length - 1) showSection(currentIdx + 1); });
+
+  /* ── KPI ラジオ ── */
+  document.querySelectorAll('.kpi-status').forEach(row => {
+    const labels = row.querySelectorAll('.kpi-badge');
+    row.querySelectorAll('input[type="radio"]').forEach((r, i) => {
+      r.addEventListener('change', () => {
+        labels.forEach(l => l.classList.remove('reached','not-reached'));
+        if (i === 0) labels[0].classList.add('reached'); else labels[1].classList.add('not-reached');
+      });
+    });
+  });
+
+  /* ── チェックボックス ── */
+  document.querySelectorAll('.check-item').forEach(item => {
+    const cb = item.querySelector('input[type="checkbox"]');
+    cb.addEventListener('change', () => item.classList.toggle('checked', cb.checked));
+  });
+
+  /* ── 重要度 ── */
+  function setSev(btn, level) {
+    const btns = btn.closest('.sev-btns').querySelectorAll('.sev-btn');
+    btns.forEach(s => s.className = 'sev-btn');
+    btn.classList.add('active-' + level);
+    // hidden fieldに保存
+    const card = btn.closest('.issue-card');
+    const hidden = card.querySelector('input[type="hidden"]');
+    if (hidden) hidden.value = level === 'high' ? '高' : level === 'mid' ? '中' : '低';
+  }
+
+  /* ── 進捗 ── */
+  function updateProgress() {
+    const inputs = document.querySelectorAll('input[type="text"], input[type="number"], textarea');
+    let filled = 0;
+    inputs.forEach(el => { if (el.value.trim()) filled++; });
+    const pct = Math.round((filled / inputs.length) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+  }
+  document.querySelectorAll('input, textarea, select').forEach(el => el.addEventListener('change', updateProgress));
+  document.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', updateProgress));
+
+  /* ── テキストエリア自動伸長 ── */
+  function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+  document.querySelectorAll('.member-field textarea').forEach(el => {
+    el.addEventListener('input', function() { autoGrow(this); });
+    // 初期表示時にも適用
+    autoGrow(el);
+  });
+
+  /* ── KPI 自動計算 ── */
+  function calcKpi(key) {
+    const target = parseFloat(document.getElementById('kpi_' + key + '_target').value);
+    const actual = parseFloat(document.getElementById('kpi_' + key + '_actual').value);
+    const rateEl  = document.getElementById('kpi_' + key + '_rate');
+    const barEl   = document.getElementById('kpi_' + key + '_bar');
+    const badgeEl = document.getElementById('kpi_' + key + '_badge');
+    const statusEl= document.getElementById('kpi_' + key + '_status');
+
+    if (isNaN(target) || isNaN(actual) || target <= 0) {
+      rateEl.textContent = '―';
+      rateEl.className = 'kpi-rate-value';
+      barEl.style.width = '0%';
+      barEl.className = 'kpi-rate-bar-fill';
+      badgeEl.textContent = '目標と実績を入力すると自動判定';
+      badgeEl.className = 'kpi-auto-badge';
+      statusEl.value = '';
+      return;
+    }
+
+    const rate = Math.round((actual / target) * 100);
+    const isOver = rate >= 100;
+    const barWidth = Math.min(rate, 100);
+
+    rateEl.textContent = rate + '%';
+    rateEl.className = 'kpi-rate-value ' + (isOver ? 'over' : 'under');
+
+    barEl.style.width = barWidth + '%';
+    barEl.className = 'kpi-rate-bar-fill ' + (isOver ? 'over' : 'under');
+
+    if (isOver) {
+      badgeEl.textContent = '✅ 達成';
+      badgeEl.className = 'kpi-auto-badge reached';
+      statusEl.value = '達成';
+    } else {
+      badgeEl.textContent = '⚠️ 未達（' + rate + '%）';
+      badgeEl.className = 'kpi-auto-badge not-reached';
+      statusEl.value = '未達';
+    }
+  }
+  const now = new Date();
+  const dayNames = ['日','月','火','水','木','金','土'];
+
+  (function(){
+    const sel = document.getElementById('year'); const cur = now.getFullYear();
+    for (let y = cur-2; y <= cur+2; y++) { const o = document.createElement('option'); o.value=y; o.textContent=y+'年'; if(y===cur) o.selected=true; sel.appendChild(o); }
+  })();
+  (function(){
+    const sel = document.getElementById('month');
+    for (let m = 1; m <= 12; m++) { const o = document.createElement('option'); o.value=m; o.textContent=m+'月'; if(m===now.getMonth()+1) o.selected=true; sel.appendChild(o); }
+  })();
+  function buildDay(y,m) {
+    const sel = document.getElementById('day'); const prev = parseInt(sel.value)||now.getDate(); sel.innerHTML='';
+    const dim = new Date(y,m,0).getDate();
+    for (let d=1; d<=dim; d++) { const o=document.createElement('option'); o.value=d; o.textContent=d+'日'; if(d===Math.min(prev,dim)) o.selected=true; sel.appendChild(o); }
+  }
+  function updateWeekday() {
+    const y=+document.getElementById('year').value, m=+document.getElementById('month').value, d=+document.getElementById('day').value;
+    if(y&&m&&d) document.getElementById('weekday').textContent = dayNames[new Date(y,m-1,d).getDay()];
+  }
+  buildDay(now.getFullYear(), now.getMonth()+1); updateWeekday();
+  document.getElementById('year').addEventListener('change',()=>{ buildDay(+document.getElementById('year').value,+document.getElementById('month').value); updateWeekday(); });
+  document.getElementById('month').addEventListener('change',()=>{ buildDay(+document.getElementById('year').value,+document.getElementById('month').value); updateWeekday(); });
+  document.getElementById('day').addEventListener('change', updateWeekday);
+
+  /* ── GAS URL 保存・読込 ── */
+  function saveGasUrl() {
+    const url = document.getElementById('gas-url').value.trim();
+    if (!url) { alert('URLを入力してください'); return; }
+    try { localStorage.setItem('gas_url', url); } catch(e){}
+    showModal('✅','URL を保存しました','スプレッドシートへの送信が有効になりました。');
+  }
+  try {
+    const saved = localStorage.getItem('gas_url');
+    if (saved) document.getElementById('gas-url').value = saved;
+  } catch(e){}
+
+  /* ── 一時保存 ── */
+  function saveLocal() {
+    try {
+      const data = collectData();
+      localStorage.setItem('nippo_draft', JSON.stringify(data));
+      showModal('💾','一時保存しました','⑦コメント画面の「送信」ボタンでスプレッドシートへ送れます。');
+    } catch(e) { showModal('❌','保存失敗',e.message); }
+  }
+
+  /* ── データ収集 ── */
+  function getVal(id) {
+    const el = document.getElementById(id);
+    if (!el) return '';
+    if (el.type === 'checkbox') return el.checked ? '✓' : '';
+    return el.value || '';
+  }
+  function getRadio(name) {
+    const checked = document.querySelector(`input[name="${name}"]:checked`);
+    return checked ? checked.value : '';
+  }
+
+  function collectData() {
+    const y = document.getElementById('year').value;
+    const m = document.getElementById('month').value;
+    const d = document.getElementById('day').value;
+    const wd = document.getElementById('weekday').textContent;
+    return {
+      送信日時: new Date().toLocaleString('ja-JP'),
+      日付: `${y}年${m}月${d}日（${wd}曜）`,
+      ブロック長名: getVal('manager'),
+      // ①
+      最重要テーマ1: getVal('theme1'),
+      最重要テーマ2: getVal('theme2'),
+      成果1: getVal('result1'), 成果2: getVal('result2'), 成果3: getVal('result3'),
+      // ②
+      売上目標: getVal('kpi_sales_target'), 売上実績: getVal('kpi_sales_actual'), 売上達成: getVal('kpi_sales_status'),
+      Point目標: getVal('kpi_point_target'), Point実績: getVal('kpi_point_actual'), Point達成: getVal('kpi_point_status'),
+      光JAPAN目標: getVal('kpi_hikari_target'), 光JAPAN実績: getVal('kpi_hikari_actual'), 光JAPAN達成: getVal('kpi_hikari_status'),
+      エコJAPAN目標: getVal('kpi_eco_target'), エコJAPAN実績: getVal('kpi_eco_actual'), エコJAPAN達成: getVal('kpi_eco_status'),
+      新規開拓目標: getVal('kpi_new_target'), 新規開拓実績: getVal('kpi_new_actual'), 新規開拓達成: getVal('kpi_new_status'),
+      受注目標: getVal('kpi_order_target'), 受注実績: getVal('kpi_order_actual'), 受注達成: getVal('kpi_order_status'),
+      見積目標: getVal('kpi_quote_target'), 見積実績: getVal('kpi_quote_actual'), 見積達成: getVal('kpi_quote_status'),
+      アポ目標: getVal('kpi_apo_target'), アポ実績: getVal('kpi_apo_actual'), アポ達成: getVal('kpi_apo_status'),
+      KPIコメント: getVal('kpi_comment'),
+      // ③
+      メンバー1氏名: getVal('m1_name'), メンバー1良: getVal('m1_good'), メンバー1課題: getVal('m1_concern'),
+      メンバー2氏名: getVal('m2_name'), メンバー2良: getVal('m2_good'), メンバー2課題: getVal('m2_concern'),
+      メンバー3氏名: getVal('m3_name'), メンバー3良: getVal('m3_good'), メンバー3課題: getVal('m3_concern'),
+      メンバー4氏名: getVal('m4_name'), メンバー4良: getVal('m4_good'), メンバー4課題: getVal('m4_concern'),
+      育成_1on1: getVal('tr_1on1')+' '+getVal('tr_1on1_name'),
+      育成_同行: getVal('tr_accompany')+' '+getVal('tr_accompany_name'),
+      育成_ロールプレイ: getVal('tr_role')+' '+getVal('tr_role_name'),
+      育成_フィードバック: getVal('tr_feedback')+' '+getVal('tr_feedback_name'),
+      育成_その他: getVal('tr_other'),
+      // ④
+      判断1件名: getVal('dec1_title'), 判断1理由: getVal('dec1_reason'),
+      判断2件名: getVal('dec2_title'), 判断2理由: getVal('dec2_reason'),
+      判断3件名: getVal('dec3_title'), 判断3理由: getVal('dec3_reason'),
+      判断背景: [getVal('bg_sales')&&'売上',getVal('bg_market')&&'市場',getVal('bg_customer')&&'顧客',getVal('bg_strategy')&&'戦略',getVal('bg_risk')&&'リスク',getVal('bg_efficiency')&&'効率',getVal('bg_hr')&&'人材',getVal('bg_other')&&'その他'].filter(Boolean).join('・'),
+      // ⑤
+      課題1: getVal('issue1_title'), 課題1重要度: getVal('issue1_sev'), 課題1対策: getVal('issue1_action'),
+      課題2: getVal('issue2_title'), 課題2重要度: getVal('issue2_sev'), 課題2対策: getVal('issue2_action'),
+      課題3: getVal('issue3_title'), 課題3重要度: getVal('issue3_sev'), 課題3対策: getVal('issue3_action'),
+      // ⑥
+      明日テーマ: getVal('tomorrow_theme'),
+      明日アクション1: getVal('action1'), 明日アクション2: getVal('action2'), 明日アクション3: getVal('action3'),
+      // ⑦
+      総括: getVal('summary'), 改善点: getVal('improvement'), メッセージ: getVal('message'),
+      決裁事項: getVal('approval'), 上長コメント: getVal('boss_comment'),
+      署名: getVal('signature'), 記入日: getVal('entry_date'),
+    };
+  }
+
+  /* ── スプレッドシート送信 ── */
+  async function submitToSheets() {
+    const gasUrl = (document.getElementById('gas-url').value || '').trim();
+    if (!gasUrl) {
+      showModal('⚠️','GAS URL が未設定です','画面上部の「GAS URL」欄にGoogle Apps ScriptのURLを入力して「保存」を押してください。\n\n設定手順書をご確認ください。');
+      return;
+    }
+    if (!document.getElementById('manager').value) {
+      showModal('⚠️','ブロック長名を選択してください','ヘッダーのブロック長名を選択してから送信してください。');
+      return;
+    }
+
+    const btn = document.getElementById('send-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> 送信中...';
+
+    const data = collectData();
+
+    try {
+      const res = await fetch(gasUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      // no-cors では response は opaque なので成功とみなす
+      showModal('✅','送信完了！','スプレッドシートへ正常に送信されました。\n\n上司はGoogleスプレッドシートで内容を確認できます。');
+      try { localStorage.setItem('nippo_draft', JSON.stringify(data)); } catch(e){}
+    } catch(err) {
+      showModal('❌','送信エラー','通信に失敗しました。\n\nWi-Fiまたはモバイルデータ通信を確認してください。\n\nエラー：' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📤 スプレッドシートへ送信';
+    }
+  }
+
+  /* ── モーダル ── */
+  function showModal(icon, title, msg) {
+    document.getElementById('modal-icon').textContent = icon;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-msg').textContent = msg;
+    document.getElementById('overlay').classList.add('show');
+  }
+  function closeModal() { document.getElementById('overlay').classList.remove('show'); }
+
+  /* ── 下書き復元 ── */
+  try {
+    const draft = localStorage.getItem('nippo_draft');
+    if (draft) {
+      // 復元は任意 — 今回は日付・ブロック長名のみ復元
+      const d = JSON.parse(draft);
+      if (d.ブロック長名) document.getElementById('manager').value = d.ブロック長名;
+    }
+  } catch(e){}
+</script>
+</body>
+</html>
